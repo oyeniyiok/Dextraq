@@ -31,28 +31,28 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         REPOSITORY: ${{ secrets.REPOSITORY }}
-         IMAGE_TAG: ${{ github.sha }}
-       AWS_DEFAULT_REGION: us-east-1
-        uses: appleboy/ssh-action@master
-        with:
+       IMAGE_TAG: ${{ github.sha }}
+       AWS_DEFAULT_REGION: us-east-1    
+      uses: appleboy/ssh-action@master
+      with:
           host: ${{ env.SERVER_PUBLIC_IP }}
           username: ec2-user
           key: ${{ env.PRIVATE_SSH_KEY }}
           envs: PRIVATE_SSH_KEY,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION
           script: |-
-       sudo dnf update -y
-          sudo dnf install -y docker awscli
-          sudo systemctl enable docker
-          sudo systemctl start docker
-          aws ecr get-login-password --region us-east-1 | \
-          sudo docker login \
-            --username AWS \
-            --password-stdin $REGISTRY
-          sudo docker stop myappcontainer || true
-          sudo docker rm myappcontainer || true
-          sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
-          sudo docker run -d \
-            --name myappcontainer \
-            -p 8080:80 \
-            $REGISTRY/$REPOSITORY:$IMAGE_TAG
-            
+             sudo dnf update -y
+                sudo dnf install -y docker awscli
+                sudo systemctl enable docker
+                sudo systemctl start docker
+                aws ecr get-login-password --region us-east-1 | \
+                sudo docker login \
+                  --username AWS \
+                  --password-stdin $REGISTRY
+                sudo docker stop myappcontainer || true
+                sudo docker rm myappcontainer || true
+                sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
+                sudo docker run -d \
+                  --name myappcontainer \
+                -p 8080:80 \
+                $REGISTRY/$REPOSITORY:$IMAGE_TAG
+                
